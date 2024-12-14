@@ -1,0 +1,9 @@
+package exlcm;
+
+struct example_t
+{
+    int64_t utime;
+    float x;
+    float y;
+    float theta;
+}
