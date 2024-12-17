@@ -17,7 +17,8 @@ lin_vel = []
 rot_vel = []
 
 for event in log:
-    if event.channel == "MBOT_ODOMETRY":
+    # if event.channel == "MBOT_ODOMETRY":
+    if event.channel == "SLAM_POSE":
         msg = example_t.decode(event.data)
         
         timestamps.append(msg.utime) 
@@ -32,21 +33,29 @@ for event in log:
         print(" ranges: %s" % str(msg.theta))
         print("")
         
-plt.figure(figsize=(10, 6))
-plt.plot(x_positions, y_positions, label="Position (x, y)")
-plt.xlabel("X Position (m)")
-plt.ylabel("Y Position (m)")
-plt.title("Position Trajectory")
-plt.legend()
-plt.grid(True)
-plt.axis('equal')
-plt.savefig("../media/trajectory_drive_square.png")
+        with open("slam_pose_log_messages.txt", "a") as file:
+            file.write(f"Message:\n")
+            file.write(f" timestamp = {msg.utime}\n")
+            file.write(f" x = {msg.x}\n")
+            file.write(f" y = {msg.y}\n")
+            file.write(f" theta = {msg.theta}\n")
+            file.write("\n")
+        
+# plt.figure(figsize=(10, 6))
+# plt.plot(x_positions, y_positions, label="Position (x, y)")
+# plt.xlabel("X Position (m)")
+# plt.ylabel("Y Position (m)")
+# plt.title("Position Trajectory")
+# plt.legend()
+# plt.grid(True)
+# plt.axis('equal')
+# plt.savefig("../media/trajectory_drive_square.png")
 
-plt.figure(figsize=(10, 6))
-plt.plot(timestamps, orientations, label="Orientation")
-plt.xlabel("Time (s)")
-plt.ylabel("Orientation (rad)")
-plt.title("Orientation over Time")
-plt.legend()
-plt.grid(True)
-plt.savefig("../media/orientation_drive_square.png")
+# plt.figure(figsize=(10, 6))
+# plt.plot(timestamps, orientations, label="Orientation")
+# plt.xlabel("Time (s)")
+# plt.ylabel("Orientation (rad)")
+# plt.title("Orientation over Time")
+# plt.legend()
+# plt.grid(True)
+# plt.savefig("../media/orientation_drive_square.png")

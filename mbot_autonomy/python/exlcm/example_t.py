@@ -9,18 +9,19 @@ except ImportError:
     from io import BytesIO
 import struct
 
+import mbot_lcm_msgs.particle_t
+
 class example_t(object):
-    __slots__ = ["utime", "x", "y", "theta"]
+    __slots__ = ["utime", "num_particles", "particles"]
 
-    __typenames__ = ["int64_t", "float", "float", "float"]
+    __typenames__ = ["int64_t", "int32_t", "mbot_lcm_msgs.particle_t"]
 
-    __dimensions__ = [None, None, None, None]
+    __dimensions__ = [None, None, None]
 
     def __init__(self):
         self.utime = 0
-        self.x = 0.0
-        self.y = 0.0
-        self.theta = 0.0
+        self.num_particles = 0
+        self.particles = mbot_lcm_msgs.particle_t()
 
     def encode(self):
         buf = BytesIO()
@@ -29,7 +30,9 @@ class example_t(object):
         return buf.getvalue()
 
     def _encode_one(self, buf):
-        buf.write(struct.pack(">qfff", self.utime, self.x, self.y, self.theta))
+        buf.write(struct.pack(">qi", self.utime, self.num_particles))
+        assert self.particles._get_packed_fingerprint() == mbot_lcm_msgs.particle_t._get_packed_fingerprint()
+        self.particles._encode_one(buf)
 
     def decode(data):
         if hasattr(data, 'read'):
@@ -43,13 +46,15 @@ class example_t(object):
 
     def _decode_one(buf):
         self = example_t()
-        self.utime, self.x, self.y, self.theta = struct.unpack(">qfff", buf.read(20))
+        self.utime, self.num_particles = struct.unpack(">qi", buf.read(12))
+        self.particles = mbot_lcm_msgs.particle_t._decode_one(buf)
         return self
     _decode_one = staticmethod(_decode_one)
 
     def _get_hash_recursive(parents):
         if example_t in parents: return 0
-        tmphash = (0xf98bd7892313b56) & 0xffffffffffffffff
+        newparents = parents + [example_t]
+        tmphash = (0x1db4623114406c+ mbot_lcm_msgs.particle_t._get_hash_recursive(newparents)) & 0xffffffffffffffff
         tmphash  = (((tmphash<<1)&0xffffffffffffffff) + (tmphash>>63)) & 0xffffffffffffffff
         return tmphash
     _get_hash_recursive = staticmethod(_get_hash_recursive)
